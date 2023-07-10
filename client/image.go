@@ -24,7 +24,7 @@ type Img2ImgData struct {
 	Prompt        string  `json:"prompt"`
 	Negprompt     string  `json:"negprompt"`
 	Steps         int     `json:"steps"`
-	InitImageURL  string  `json:"init_image_url"`
+	FileURL       string  `json:"init_image_url"`
 	Strength      string  `json:"strength"`
 	GuidanceScale float64 `json:"guidance_scale"`
 	Seed          int     `json:"seed"`

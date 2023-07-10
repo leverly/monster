@@ -36,7 +36,7 @@ func (m *MonsterClient) Img2Img(param Img2ImgData) (*TaskResponse, error) {
 	return m.postRequest(request)
 }
 
-func (m *MonsterClient) InstructPix2Pix(param Pix2PixData) (*TaskResponse, error) {
+func (m *MonsterClient) Pix2Pix(param Pix2PixData) (*TaskResponse, error) {
 	request := Pix2PixRequest{
 		Model: "pix2pix",
 		Data:  param,
@@ -60,8 +60,8 @@ func (m *MonsterClient) Text2Speech(param SunoaiBarkData) (*TaskResponse, error)
 	return m.postRequest(request)
 }
 
-func (m *MonsterClient) InstructFalcon(param Falcon7bInstructData) (*TaskResponse, error) {
-	request := Falcon7bInstructRequest{
+func (m *MonsterClient) TextGeneration(param TextGenerationData) (*TaskResponse, error) {
+	request := TextGenerationRequest{
 		Model: "falcon-7b-instruct",
 		Data:  param,
 	}

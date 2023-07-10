@@ -1,11 +1,11 @@
 package client
 
-type Falcon7bInstructRequest struct {
-	Model string               `json:"model"`
-	Data  Falcon7bInstructData `json:"data"`
+type TextGenerationRequest struct {
+	Model string             `json:"model"`
+	Data  TextGenerationData `json:"data"`
 }
 
-type Falcon7bInstructData struct {
+type TextGenerationData struct {
 	Prompt string  `json:"prompt"`
 	TopK   int     `json:"top_k"`
 	TopP   float64 `json:"top_p"`
