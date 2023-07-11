@@ -90,7 +90,11 @@ func Text2Speech(monster *client.MonsterClient) {
 // output text
 func Speech2Text(monster *client.MonsterClient) {
 	resp, err := monster.Speech2Text(client.WhisperParam{
-		Prompt: "hello world, i am a robot, haha",
+		Prompt:              "robot, haha",
+		Language:            "en",
+		FileURL:             voiceUrl,
+		TranscriptionFormat: client.TEXT_TYPE_FORMAT_TEXT,
+		RemoveSilence:       true,
 	})
 
 	if err != nil || resp.ProcessID == "" {

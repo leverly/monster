@@ -26,6 +26,7 @@ const (
 type WhisperParam struct {
 	Prompt              string `json:"prompt"`
 	FileURL             string `json:"file"`
+	RemoveSilence       bool   `json:"remove_silence"`
 	TranscriptionFormat string `json:"transcription_format"`
 	Language            string `json:"language"`
 }
