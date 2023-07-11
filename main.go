@@ -1,5 +1,135 @@
 package main
 
-func main() {
+import (
+	"errors"
+	"log"
+	"monster/client"
+	"time"
+)
 
+var imgUrl, voiceUrl string
+
+func main() {
+	apiKey := ""
+	token := ""
+	monster := client.NewMonsterClient(apiKey, token)
+
+	Text2Speech(monster)
+}
+
+func Text2Img(monster *client.MonsterClient) {
+	resp, err := monster.Text2Img(client.Text2ImgParam{
+		Prompt:        "rainy, storm, grass, horse, rainbow, flying",
+		Negprompt:     "",
+		GuidanceScale: 7.5,
+		Steps:         0,
+		AspectRatio:   "landscape",
+		Seed:          100,
+		Samples:       1,
+	})
+
+	if err != nil || resp.ProcessID == "" {
+		log.Println("Text2Img failed:", err)
+	}
+
+	imgUrl, _ = GetResult(monster, resp.ProcessID)
+}
+
+func Img2Img(monster *client.MonsterClient) {
+	resp, err := monster.Img2Img(client.Img2ImgParam{
+		Prompt:        "rainy, storm, grass, horse, flying",
+		Negprompt:     "rainbow",
+		GuidanceScale: 7.5,
+		Steps:         30,
+		Seed:          100,
+		FileURL:       imgUrl,
+		Strength:      0.75,
+	})
+
+	if err != nil || resp.ProcessID == "" {
+		log.Println("Img2Img failed:", err)
+	}
+
+	imgUrl, _ = GetResult(monster, resp.ProcessID)
+}
+
+func Pix2Pix(monster *client.MonsterClient) {
+	resp, err := monster.Pix2Pix(client.Pix2PixParam{
+		Prompt:             "rainy, storm, grass, flying kites",
+		Negprompt:          "rainbow, horse",
+		GuidanceScale:      8.5,
+		ImageGuidanceScale: 3.0,
+		Steps:              30,
+		Seed:               100,
+		FileURL:            imgUrl,
+	})
+
+	if err != nil || resp.ProcessID == "" {
+		log.Println("Pix2Pix failed:", err)
+	}
+
+	imgUrl, _ = GetResult(monster, resp.ProcessID)
+}
+
+func Text2Speech(monster *client.MonsterClient) {
+	resp, err := monster.Text2Speech(client.SunoaiBarkParam{
+		Prompt:              "hello world, i am a robot, haha",
+		Speaker:             "en_speaker_1",
+		SampleRate:          25000,
+		TextTemperature:     0.3,
+		WaveformTemperature: 0.5,
+	})
+
+	if err != nil || resp.ProcessID == "" {
+		log.Println("Text2Speech failed:", err)
+	}
+
+	voiceUrl, _ = GetResult(monster, resp.ProcessID)
+}
+
+// output text
+func Speech2Text(monster *client.MonsterClient) {
+	resp, err := monster.Speech2Text(client.WhisperParam{
+		Prompt: "hello world, i am a robot, haha",
+	})
+
+	if err != nil || resp.ProcessID == "" {
+		log.Println("Speech2Text failed:", err)
+	}
+
+	_, _ = GetResult(monster, resp.ProcessID)
+}
+
+func TextGeneration(monster *client.MonsterClient) {
+	resp, err := monster.TextGeneration(client.TextGenerationParam{
+		Prompt: "hello world, tell a story about the robot",
+		TopP:   0.5,
+		TopK:   10,
+	})
+
+	if err != nil || resp.ProcessID == "" {
+		log.Println("Speech2Text failed:", err)
+	}
+
+	_, _ = GetResult(monster, resp.ProcessID)
+}
+
+func GetResult(monster *client.MonsterClient, processId string) (string, error) {
+	for true {
+		result, err := monster.TaskStatus(processId)
+		if err != nil {
+			return "", err
+		}
+		switch result.Status() {
+		case client.TASK_STATUS_COMPLETED:
+			url := result.ResponseData.GetOutput()[0]
+			log.Println("task completed:", url)
+			return url, nil
+		case client.TASK_STATUS_FAILED:
+			log.Println("check task failed:", result.ResponseData.GetErrMessage())
+			return "", errors.New(result.ResponseData.GetErrMessage())
+		}
+		time.Sleep(time.Second * 2)
+	}
+	return "", errors.New("error occured")
 }
