@@ -1,8 +1,9 @@
 package client
 
+// image editing
 type Pix2PixRequest struct {
-	Model string      `json:"model"`
-	Data  Pix2PixData `json:"data"`
+	Model string       `json:"model"`
+	Param Pix2PixParam `json:"data"`
 }
 
 const (
@@ -11,7 +12,7 @@ const (
 	IMG_FILE_TYPE_PNG  = "png"
 )
 
-type Pix2PixData struct {
+type Pix2PixParam struct {
 	Prompt             string  `json:"prompt"`
 	Negprompt          string  `json:"negprompt"`
 	Steps              int     `json:"steps"`

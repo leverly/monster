@@ -1,8 +1,8 @@
 package client
 
 type WhisperRequest struct {
-	Model string      `json:"model"`
-	Data  WhisperData `json:"data"`
+	Model string       `json:"model"`
+	Param WhisperParam `json:"data"`
 }
 
 const (
@@ -16,9 +16,16 @@ const (
 	VOICE_FILE_TYPE_OGG  = "ogg"
 )
 
-type WhisperData struct {
+const (
+	TEXT_TYPE_FORMAT_TEXT    = "text"
+	TEXT_TYPE_FORMAT_SRT     = "srt"
+	TEXT_TYPE_FORMAT_WORD    = "word"
+	TEXT_TYPE_FORMAT_VERBOSE = "verbose"
+)
+
+type WhisperParam struct {
+	Prompt              string `json:"prompt"`
 	FileURL             string `json:"file"`
 	TranscriptionFormat string `json:"transcription_format"`
-	Prompt              string `json:"prompt"`
 	Language            string `json:"language"`
 }

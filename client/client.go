@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	URL = "https://api.monsterapi.ai/apis/add-task"
+	ADD_TASK_URL = "https://api.monsterapi.ai/apis/add-task"
+	GET_TASK_URL = "https://api.monsterapi.ai/apis/task-status"
 )
 
 type MonsterClient struct {
@@ -20,60 +21,95 @@ func NewMonsterClient(apikey, token string) *MonsterClient {
 	return &MonsterClient{apikey: apikey, token: token}
 }
 
-func (m *MonsterClient) Text2Img(param Text2ImgData) (*TaskResponse, error) {
+func (m *MonsterClient) TaskStatus(processId string) (*TaskResultResponse, error) {
+	request := TaskStatusRequest{
+		ProcessID: processId,
+	}
+	payload, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := m.request(GET_TASK_URL, payload)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp TaskResultResponse
+	err = json.Unmarshal(body, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (m *MonsterClient) Text2Img(param Text2ImgParam) (*AddTaskResponse, error) {
 	request := Text2ImgRequest{
 		Model: "txt2img",
-		Data:  param,
+		Param: param,
 	}
-	return m.postRequest(request)
+	return m.addTask(request)
 }
 
-func (m *MonsterClient) Img2Img(param Img2ImgData) (*TaskResponse, error) {
+func (m *MonsterClient) Img2Img(param Img2ImgParam) (*AddTaskResponse, error) {
 	request := Img2ImgRequest{
-		Model: "Img2img",
-		Data:  param,
+		Model: "img2img",
+		Param: param,
 	}
-	return m.postRequest(request)
+	return m.addTask(request)
 }
 
-func (m *MonsterClient) Pix2Pix(param Pix2PixData) (*TaskResponse, error) {
+func (m *MonsterClient) Pix2Pix(param Pix2PixParam) (*AddTaskResponse, error) {
 	request := Pix2PixRequest{
 		Model: "pix2pix",
-		Data:  param,
+		Param: param,
 	}
-	return m.postRequest(request)
+	return m.addTask(request)
 }
 
-func (m *MonsterClient) Speech2Text(param WhisperData) (*TaskResponse, error) {
+func (m *MonsterClient) Speech2Text(param WhisperParam) (*AddTaskResponse, error) {
 	request := WhisperRequest{
 		Model: "whisper",
-		Data:  param,
+		Param: param,
 	}
-	return m.postRequest(request)
+	return m.addTask(request)
 }
 
-func (m *MonsterClient) Text2Speech(param SunoaiBarkData) (*TaskResponse, error) {
+func (m *MonsterClient) Text2Speech(param SunoaiBarkParam) (*AddTaskResponse, error) {
 	request := SunoaiBarkRequest{
 		Model: "sunoai-bark",
-		Data:  param,
+		Param: param,
 	}
-	return m.postRequest(request)
+	return m.addTask(request)
 }
 
-func (m *MonsterClient) TextGeneration(param TextGenerationData) (*TaskResponse, error) {
+func (m *MonsterClient) TextGeneration(param TextGenerationParam) (*AddTaskResponse, error) {
 	request := TextGenerationRequest{
 		Model: "falcon-7b-instruct",
-		Data:  param,
+		Param: param,
 	}
-	return m.postRequest(request)
+	return m.addTask(request)
 }
 
-func (m *MonsterClient) postRequest(param any) (*TaskResponse, error) {
+func (m *MonsterClient) addTask(param any) (*AddTaskResponse, error) {
 	payload, err := json.Marshal(param)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", URL, bytes.NewBuffer(payload))
+	body, err := m.request(ADD_TASK_URL, payload)
+	if err != nil {
+		return nil, err
+	}
+	var resp AddTaskResponse
+	err = json.Unmarshal(body, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+func (m *MonsterClient) request(url string, payload []byte) ([]byte, error) {
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 	if err != nil {
 		return nil, err
 	}
@@ -90,10 +126,5 @@ func (m *MonsterClient) postRequest(param any) (*TaskResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	var resp TaskResponse
-	err = json.Unmarshal(body, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
+	return body, nil
 }
