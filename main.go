@@ -125,12 +125,12 @@ func GetFileResult(monster *client.MonsterClient, processId string) (string, err
 		}
 		switch result.Status() {
 		case client.TASK_STATUS_COMPLETED:
-			url := result.ResponseData.GetOutput()[0]
+			url := result.GetOutput()[0]
 			log.Println("task completed:", url)
 			return url, nil
 		case client.TASK_STATUS_FAILED:
-			log.Println("check task failed:", result.ResponseData.GetErrMessage())
-			return "", errors.New(result.ResponseData.GetErrMessage())
+			log.Println("check task failed:", result.GetErrMessage())
+			return "", errors.New(result.GetErrMessage())
 		}
 		time.Sleep(time.Second * 2)
 	}
@@ -145,12 +145,12 @@ func GetTextResult(monster *client.MonsterClient, processId string) (string, err
 		}
 		switch result.Status() {
 		case client.TASK_STATUS_COMPLETED:
-			text := result.ResponseData.GetText()
+			text := result.GetText()
 			log.Println("task completed:", text)
 			return text, nil
 		case client.TASK_STATUS_FAILED:
-			log.Println("check task failed:", result.ResponseData.GetErrMessage())
-			return "", errors.New(result.ResponseData.GetErrMessage())
+			log.Println("check task failed:", result.GetErrMessage())
+			return "", errors.New(result.GetErrMessage())
 		}
 		time.Sleep(time.Second * 2)
 	}
