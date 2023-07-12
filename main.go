@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var imgUrl, voiceUrl string
+var text, imgUrl, voiceUrl string
 
 func main() {
 	var apiKey, token string
@@ -100,7 +100,7 @@ func Speech2Text(monster *client.MonsterClient) {
 		log.Println("Speech2Text failed:", err)
 	}
 
-	_, _ = GetTextResult(monster, resp.ProcessID)
+	text, _ = GetTextResult(monster, resp.ProcessID)
 }
 
 func TextGeneration(monster *client.MonsterClient) {
@@ -111,10 +111,10 @@ func TextGeneration(monster *client.MonsterClient) {
 	})
 
 	if err != nil || resp.ProcessID == "" {
-		log.Println("Speech2Text failed:", err)
+		log.Println("TextGeneration failed:", err)
 	}
 
-	_, _ = GetTextResult(monster, resp.ProcessID)
+	text, _ = GetTextResult(monster, resp.ProcessID)
 }
 
 func GetFileResult(monster *client.MonsterClient, processId string) (string, error) {
@@ -134,7 +134,7 @@ func GetFileResult(monster *client.MonsterClient, processId string) (string, err
 		}
 		time.Sleep(time.Second * 2)
 	}
-	return "", errors.New("error occured")
+	return "", errors.New("fatal error")
 }
 
 func GetTextResult(monster *client.MonsterClient, processId string) (string, error) {
@@ -154,5 +154,5 @@ func GetTextResult(monster *client.MonsterClient, processId string) (string, err
 		}
 		time.Sleep(time.Second * 2)
 	}
-	return "", errors.New("error occured")
+	return "", errors.New("fatal error")
 }
