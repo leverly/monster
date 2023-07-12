@@ -10,19 +10,18 @@ import (
 var imgUrl, voiceUrl string
 
 func main() {
-	apiKey := ""
-	token := ""
-	monster := client.NewMonsterClient(apiKey, token)
-
-	Text2Speech(monster)
+	var apiKey, token string
+	proxy := client.NewMonsterClient(apiKey, token)
+	Text2Speech(proxy)
 }
 
+// output is url file
 func Text2Img(monster *client.MonsterClient) {
 	resp, err := monster.Text2Img(client.Text2ImgParam{
 		Prompt:        "rainy, storm, grass, horse, rainbow, flying",
 		Negprompt:     "",
 		GuidanceScale: 7.5,
-		Steps:         0,
+		Steps:         30,
 		AspectRatio:   "landscape",
 		Seed:          100,
 		Samples:       1,
@@ -32,7 +31,7 @@ func Text2Img(monster *client.MonsterClient) {
 		log.Println("Text2Img failed:", err)
 	}
 
-	imgUrl, _ = GetResult(monster, resp.ProcessID)
+	imgUrl, _ = GetFileResult(monster, resp.ProcessID)
 }
 
 func Img2Img(monster *client.MonsterClient) {
@@ -50,7 +49,7 @@ func Img2Img(monster *client.MonsterClient) {
 		log.Println("Img2Img failed:", err)
 	}
 
-	imgUrl, _ = GetResult(monster, resp.ProcessID)
+	imgUrl, _ = GetFileResult(monster, resp.ProcessID)
 }
 
 func Pix2Pix(monster *client.MonsterClient) {
@@ -68,7 +67,7 @@ func Pix2Pix(monster *client.MonsterClient) {
 		log.Println("Pix2Pix failed:", err)
 	}
 
-	imgUrl, _ = GetResult(monster, resp.ProcessID)
+	imgUrl, _ = GetFileResult(monster, resp.ProcessID)
 }
 
 func Text2Speech(monster *client.MonsterClient) {
@@ -84,10 +83,10 @@ func Text2Speech(monster *client.MonsterClient) {
 		log.Println("Text2Speech failed:", err)
 	}
 
-	voiceUrl, _ = GetResult(monster, resp.ProcessID)
+	voiceUrl, _ = GetFileResult(monster, resp.ProcessID)
 }
 
-// output text
+// output is text
 func Speech2Text(monster *client.MonsterClient) {
 	resp, err := monster.Speech2Text(client.WhisperParam{
 		Prompt:              "robot, haha",
@@ -101,7 +100,7 @@ func Speech2Text(monster *client.MonsterClient) {
 		log.Println("Speech2Text failed:", err)
 	}
 
-	_, _ = GetResult(monster, resp.ProcessID)
+	_, _ = GetTextResult(monster, resp.ProcessID)
 }
 
 func TextGeneration(monster *client.MonsterClient) {
@@ -115,10 +114,10 @@ func TextGeneration(monster *client.MonsterClient) {
 		log.Println("Speech2Text failed:", err)
 	}
 
-	_, _ = GetResult(monster, resp.ProcessID)
+	_, _ = GetTextResult(monster, resp.ProcessID)
 }
 
-func GetResult(monster *client.MonsterClient, processId string) (string, error) {
+func GetFileResult(monster *client.MonsterClient, processId string) (string, error) {
 	for true {
 		result, err := monster.TaskStatus(processId)
 		if err != nil {
@@ -129,6 +128,26 @@ func GetResult(monster *client.MonsterClient, processId string) (string, error) 
 			url := result.ResponseData.GetOutput()[0]
 			log.Println("task completed:", url)
 			return url, nil
+		case client.TASK_STATUS_FAILED:
+			log.Println("check task failed:", result.ResponseData.GetErrMessage())
+			return "", errors.New(result.ResponseData.GetErrMessage())
+		}
+		time.Sleep(time.Second * 2)
+	}
+	return "", errors.New("error occured")
+}
+
+func GetTextResult(monster *client.MonsterClient, processId string) (string, error) {
+	for true {
+		result, err := monster.TaskStatus(processId)
+		if err != nil {
+			return "", err
+		}
+		switch result.Status() {
+		case client.TASK_STATUS_COMPLETED:
+			text := result.ResponseData.GetText()
+			log.Println("task completed:", text)
+			return text, nil
 		case client.TASK_STATUS_FAILED:
 			log.Println("check task failed:", result.ResponseData.GetErrMessage())
 			return "", errors.New(result.ResponseData.GetErrMessage())

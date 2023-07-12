@@ -51,7 +51,21 @@ func (d ResponseData) GetErrMessage() string {
 
 func (d ResponseData) GetOutput() []string {
 	if d.Status == TASK_STATUS_COMPLETED {
-		return d.Result.(map[string]interface{})["output"].([]string)
+		slice := d.Result.(map[string]interface{})["output"].([]interface{})
+		stringSlice := make([]string, len(slice))
+		for i, v := range slice {
+			if str, ok := v.(string); ok {
+				stringSlice[i] = str
+			}
+		}
+		return stringSlice
 	}
 	return nil
+}
+
+func (d ResponseData) GetText() string {
+	if d.Status == TASK_STATUS_COMPLETED {
+		return d.Result.(map[string]interface{})["text"].(string)
+	}
+	return ""
 }
