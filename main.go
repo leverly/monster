@@ -29,6 +29,7 @@ func Text2Img(monster *client.MonsterClient) {
 
 	if err != nil || resp.ProcessID == "" {
 		log.Println("Text2Img failed:", err)
+		return
 	}
 
 	imgUrl, _ = GetFileResult(monster, resp.ProcessID)
@@ -47,6 +48,7 @@ func Img2Img(monster *client.MonsterClient) {
 
 	if err != nil || resp.ProcessID == "" {
 		log.Println("Img2Img failed:", err)
+		return
 	}
 
 	imgUrl, _ = GetFileResult(monster, resp.ProcessID)
@@ -65,6 +67,7 @@ func Pix2Pix(monster *client.MonsterClient) {
 
 	if err != nil || resp.ProcessID == "" {
 		log.Println("Pix2Pix failed:", err)
+		return
 	}
 
 	imgUrl, _ = GetFileResult(monster, resp.ProcessID)
@@ -75,12 +78,13 @@ func Text2Speech(monster *client.MonsterClient) {
 		Prompt:              "hello world, i am a robot, haha",
 		Speaker:             "en_speaker_1",
 		SampleRate:          25000,
-		TextTemperature:     0.3,
+		TextTemperature:     0.5,
 		WaveformTemperature: 0.5,
 	})
 
 	if err != nil || resp.ProcessID == "" {
 		log.Println("Text2Speech failed:", err)
+		return
 	}
 
 	voiceUrl, _ = GetFileResult(monster, resp.ProcessID)
@@ -98,6 +102,7 @@ func Speech2Text(monster *client.MonsterClient) {
 
 	if err != nil || resp.ProcessID == "" {
 		log.Println("Speech2Text failed:", err)
+		return
 	}
 
 	text, _ = GetTextResult(monster, resp.ProcessID)
@@ -112,6 +117,7 @@ func TextGeneration(monster *client.MonsterClient) {
 
 	if err != nil || resp.ProcessID == "" {
 		log.Println("TextGeneration failed:", err)
+		return
 	}
 
 	text, _ = GetTextResult(monster, resp.ProcessID)

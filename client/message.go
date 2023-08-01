@@ -12,23 +12,23 @@ type TaskStatusRequest struct {
 
 type TaskResultResponse struct {
 	Message      string       `json:"message"`
-	responseData ResponseData `json:"response_data"`
+	ResponseData ResponseData `json:"response_data"`
 }
 
 func (t TaskResultResponse) Status() string {
-	return t.responseData.Status
+	return t.ResponseData.Status
 }
 
 func (t TaskResultResponse) GetErrMessage() string {
-	return t.responseData.GetErrMessage()
+	return t.ResponseData.GetErrMessage()
 }
 
 func (t TaskResultResponse) GetOutput() []string {
-	return t.responseData.GetOutput()
+	return t.ResponseData.GetOutput()
 }
 
 func (t TaskResultResponse) GetText() string {
-	return t.responseData.GetText()
+	return t.ResponseData.GetText()
 }
 
 const (
