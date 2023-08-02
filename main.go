@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var text, imgUrl, voiceUrl string
+var imgUrl, voiceUrl string
 
 func main() {
 	var apiKey, token string
@@ -105,7 +105,7 @@ func Speech2Text(monster *client.MonsterClient) {
 		return
 	}
 
-	text, _ = GetTextResult(monster, resp.ProcessID)
+	_, _ = GetTextResult(monster, resp.ProcessID)
 }
 
 func TextGeneration(monster *client.MonsterClient) {
@@ -120,11 +120,11 @@ func TextGeneration(monster *client.MonsterClient) {
 		return
 	}
 
-	text, _ = GetTextResult(monster, resp.ProcessID)
+	_, _ = GetTextResult(monster, resp.ProcessID)
 }
 
 func GetFileResult(monster *client.MonsterClient, processId string) (string, error) {
-	for true {
+	for {
 		result, err := monster.TaskStatus(processId)
 		if err != nil {
 			return "", err
@@ -140,11 +140,10 @@ func GetFileResult(monster *client.MonsterClient, processId string) (string, err
 		}
 		time.Sleep(time.Second * 2)
 	}
-	return "", errors.New("fatal error")
 }
 
 func GetTextResult(monster *client.MonsterClient, processId string) (string, error) {
-	for true {
+	for {
 		result, err := monster.TaskStatus(processId)
 		if err != nil {
 			return "", err
@@ -160,5 +159,4 @@ func GetTextResult(monster *client.MonsterClient, processId string) (string, err
 		}
 		time.Sleep(time.Second * 2)
 	}
-	return "", errors.New("fatal error")
 }
