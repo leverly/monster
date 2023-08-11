@@ -2,17 +2,22 @@ package main
 
 import (
 	"errors"
-	"log"
+	"github.com/sirupsen/logrus"
 	"monster/client"
+	"os"
 	"time"
 )
 
 var imgUrl, voiceUrl string
 
 func main() {
+	logrus.SetOutput(os.Stdout)
+	logrus.SetReportCaller(true)
+	logrus.SetFormatter(&LogFormatter{})
+
 	var apiKey, token string
 	proxy := client.NewMonsterClient(apiKey, token)
-	Text2Speech(proxy)
+	Text2Img(proxy)
 }
 
 // output is url file
@@ -27,8 +32,8 @@ func Text2Img(monster *client.MonsterClient) {
 		Samples:       1,
 	})
 
-	if err != nil || resp.ProcessID == "" {
-		log.Println("Text2Img failed:", err)
+	if err != nil {
+		logrus.Error("Text2Img failed:", err)
 		return
 	}
 
@@ -46,8 +51,8 @@ func Img2Img(monster *client.MonsterClient) {
 		Strength:      0.75,
 	})
 
-	if err != nil || resp.ProcessID == "" {
-		log.Println("Img2Img failed:", err)
+	if err != nil {
+		logrus.Error("Img2Img failed:", err)
 		return
 	}
 
@@ -65,8 +70,8 @@ func Pix2Pix(monster *client.MonsterClient) {
 		FileURL:            imgUrl,
 	})
 
-	if err != nil || resp.ProcessID == "" {
-		log.Println("Pix2Pix failed:", err)
+	if err != nil {
+		logrus.Error("Pix2Pix failed:", err)
 		return
 	}
 
@@ -82,8 +87,8 @@ func Text2Speech(monster *client.MonsterClient) {
 		WaveformTemperature: 0.5,
 	})
 
-	if err != nil || resp.ProcessID == "" {
-		log.Println("Text2Speech failed:", err)
+	if err != nil {
+		logrus.Error("Text2Speech failed:", err)
 		return
 	}
 
@@ -100,23 +105,41 @@ func Speech2Text(monster *client.MonsterClient) {
 		RemoveSilence:       true,
 	})
 
-	if err != nil || resp.ProcessID == "" {
-		log.Println("Speech2Text failed:", err)
+	if err != nil {
+		logrus.Error("Speech2Text failed:", err)
 		return
 	}
 
 	_, _ = GetTextResult(monster, resp.ProcessID)
 }
 
-func TextGeneration(monster *client.MonsterClient) {
-	resp, err := monster.TextGeneration(client.TextGenerationParam{
+func FalconTextGeneration(monster *client.MonsterClient) {
+	resp, err := monster.FalconTextGeneration(client.FalconTextGenerationParam{
 		Prompt: "hello world, tell a story about the robot",
 		TopP:   0.5,
 		TopK:   10,
 	})
 
-	if err != nil || resp.ProcessID == "" {
-		log.Println("TextGeneration failed:", err)
+	if err != nil {
+		logrus.Error("FalconTextGeneration failed:", err)
+		return
+	}
+
+	_, _ = GetTextResult(monster, resp.ProcessID)
+}
+
+func Llama2TextGeneration(monster *client.MonsterClient) {
+	resp, err := monster.Llama2TextGeneration(client.Llama2TextGenerationParam{
+		Prompt:            "hello world, tell a story about the robot",
+		TopP:              0.5,
+		TopK:              10,
+		Temp:              0.5,
+		MaxLength:         100,
+		RepetitionPenalty: 0.5,
+		BeamSize:          1,
+	})
+	if err != nil {
+		logrus.Error("Llama2TextGeneration failed:", err)
 		return
 	}
 
@@ -132,10 +155,10 @@ func GetFileResult(monster *client.MonsterClient, processId string) (string, err
 		switch result.Status() {
 		case client.TASK_STATUS_COMPLETED:
 			url := result.GetOutput()[0]
-			log.Println("task completed:", url)
+			logrus.Info("task completed:", url)
 			return url, nil
 		case client.TASK_STATUS_FAILED:
-			log.Println("check task failed:", result.GetErrMessage())
+			logrus.Info("check task failed:", result.GetErrMessage())
 			return "", errors.New(result.GetErrMessage())
 		}
 		time.Sleep(time.Second * 2)
@@ -151,10 +174,10 @@ func GetTextResult(monster *client.MonsterClient, processId string) (string, err
 		switch result.Status() {
 		case client.TASK_STATUS_COMPLETED:
 			text := result.GetText()
-			log.Println("task completed:", text)
+			logrus.Info("task completed:", text)
 			return text, nil
 		case client.TASK_STATUS_FAILED:
-			log.Println("check task failed:", result.GetErrMessage())
+			logrus.Info("check task failed:", result.GetErrMessage())
 			return "", errors.New(result.GetErrMessage())
 		}
 		time.Sleep(time.Second * 2)
