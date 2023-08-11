@@ -17,7 +17,7 @@ func main() {
 
 	var apiKey, token string
 	proxy := client.NewMonsterClient(apiKey, token)
-	Text2Img(proxy)
+	Llama2TextGeneration(proxy)
 }
 
 // output is url file
@@ -130,12 +130,12 @@ func FalconTextGeneration(monster *client.MonsterClient) {
 
 func Llama2TextGeneration(monster *client.MonsterClient) {
 	resp, err := monster.Llama2TextGeneration(client.Llama2TextGenerationParam{
-		Prompt:            "hello world, tell a story about the robot",
-		TopP:              0.5,
+		Prompt:            "tell a story about the little robot less than 5 sentences",
+		TopP:              0.9,
 		TopK:              10,
-		Temp:              0.5,
-		MaxLength:         100,
-		RepetitionPenalty: 0.5,
+		Temp:              0.9,
+		MaxLength:         200,
+		RepetitionPenalty: 1.2,
 		BeamSize:          1,
 	})
 	if err != nil {
@@ -158,7 +158,7 @@ func GetFileResult(monster *client.MonsterClient, processId string) (string, err
 			logrus.Info("task completed:", url)
 			return url, nil
 		case client.TASK_STATUS_FAILED:
-			logrus.Info("check task failed:", result.GetErrMessage())
+			logrus.Warnf("check task failed:", result.GetErrMessage())
 			return "", errors.New(result.GetErrMessage())
 		}
 		time.Sleep(time.Second * 2)
@@ -177,7 +177,7 @@ func GetTextResult(monster *client.MonsterClient, processId string) (string, err
 			logrus.Info("task completed:", text)
 			return text, nil
 		case client.TASK_STATUS_FAILED:
-			logrus.Info("check task failed:", result.GetErrMessage())
+			logrus.Warnf("check task failed:", result.GetErrMessage())
 			return "", errors.New(result.GetErrMessage())
 		}
 		time.Sleep(time.Second * 2)
