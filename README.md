@@ -3,6 +3,7 @@
 the monsterapi.ai restful api golang sdk
 
 ## Text2Img (Stable Diffusion)
+see main.go
 
 ## Img2Img (Stable Diffusion)
 
@@ -12,5 +13,6 @@ the monsterapi.ai restful api golang sdk
 
 ## Text2Speech (Sunoai Bark)
 
-## TextGeneration (Falcon6B)
+## FalconTextGeneration (Falcon Model)
 
+## Llama2TextGeneration (Llama2 Model)
