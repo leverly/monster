@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 )
@@ -83,9 +84,17 @@ func (m *MonsterClient) Text2Speech(param SunoaiBarkParam) (*AddTaskResponse, er
 	return m.addTask(request)
 }
 
-func (m *MonsterClient) TextGeneration(param TextGenerationParam) (*AddTaskResponse, error) {
-	request := TextGenerationRequest{
+func (m *MonsterClient) FalconTextGeneration(param FalconTextGenerationParam) (*AddTaskResponse, error) {
+	request := FalconTextGenerationRequest{
 		Model: "falcon-7b-instruct",
+		Param: param,
+	}
+	return m.addTask(request)
+}
+
+func (m *MonsterClient) Llama2TextGeneration(param Llama2TextGenerationParam) (*AddTaskResponse, error) {
+	request := Llama2TextGenerationRequest{
+		Model: "llama2-7b-chat",
 		Param: param,
 	}
 	return m.addTask(request)
@@ -104,6 +113,9 @@ func (m *MonsterClient) addTask(param any) (*AddTaskResponse, error) {
 	err = json.Unmarshal(body, &resp)
 	if err != nil {
 		return nil, err
+	}
+	if resp.ProcessID == "" {
+		return nil, errors.New(resp.Message)
 	}
 	return &resp, nil
 }
